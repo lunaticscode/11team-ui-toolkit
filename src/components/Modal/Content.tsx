@@ -1,4 +1,11 @@
-import { PropsWithChildren, FC, useMemo, CSSProperties } from "react";
+import {
+  PropsWithChildren,
+  FC,
+  useMemo,
+  CSSProperties,
+  useRef,
+  useEffect,
+} from "react";
 import { createPortal } from "react-dom";
 import { useModalContext } from "./Root";
 
@@ -9,7 +16,28 @@ export interface ModalContentProps extends PropsWithChildren {
 }
 const ModalContent: FC<ModalContentProps> = (props) => {
   const { children, width = "400px", height = "400px" } = props;
-  const { open: currentOpenState, trigger } = useModalContext();
+  const {
+    open: currentOpenState,
+    handleOpenChange,
+    trigger,
+  } = useModalContext();
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleClickOutside = (e: MouseEvent) => {
+    if (contentRef && trigger) {
+      if (e.target === trigger.current) return;
+      const isInside = contentRef.current?.contains(e.target as HTMLElement);
+      handleOpenChange?.(isInside);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [trigger?.current]);
+
   const position = useMemo(() => {
     if (!trigger?.current) {
       return {
@@ -27,7 +55,9 @@ const ModalContent: FC<ModalContentProps> = (props) => {
     if (currentOpenState) {
       return createPortal(
         <div
+          ref={contentRef}
           style={{
+            border: "1px solid black",
             position: "absolute",
             top: position.y,
             left: position.x,
