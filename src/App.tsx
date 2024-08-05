@@ -1,8 +1,15 @@
+import { useRef } from "react";
 import { Carousel, Modal } from "./components";
 import CarouselItem from "./components/Carousel/Item";
-import CarouselNavigator from "./components/Carousel/Navigator";
+import CarouselNavigator, {
+  CarouselNavigatorRef,
+} from "./components/Carousel/Navigator";
 
 function App() {
+  const carouselNavigatorRef = useRef<CarouselNavigatorRef>(null);
+  const handleClickCarouselPrev = () => {
+    carouselNavigatorRef.current?.prev();
+  };
   return (
     <>
       <h2>Modal UI</h2>
@@ -25,6 +32,7 @@ function App() {
         <CarouselItem>CarouseItem-5</CarouselItem>
         <CarouselNavigator />
       </Carousel.Root>
+
       <h2>Carousel UI(Custom Navigator)</h2>
       <Carousel.Root>
         <CarouselItem>CarouseItem-1</CarouselItem>
@@ -32,7 +40,7 @@ function App() {
         <CarouselItem>CarouseItem-3</CarouselItem>
         <CarouselItem>CarouseItem-4</CarouselItem>
         <CarouselItem>CarouseItem-5</CarouselItem>
-        <CarouselNavigator>
+        <CarouselNavigator ref={carouselNavigatorRef}>
           {(prev, next) => (
             <div>
               <button onClick={prev}>custom-prev</button>
@@ -41,6 +49,11 @@ function App() {
           )}
         </CarouselNavigator>
       </Carousel.Root>
+
+      <div>
+        <button onClick={handleClickCarouselPrev}>carousel-prev</button>
+        <button>carousel-next</button>
+      </div>
     </>
   );
 }
